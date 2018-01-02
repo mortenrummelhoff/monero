@@ -1,6 +1,8 @@
 package com.monero.optimizer;
 
 import com.monero.optimizer.clients.HashVaultProClient;
+import com.monero.optimizer.clients.MineXmrClient;
+import com.monero.optimizer.clients.data.HashVaultProStatsData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +19,20 @@ public class PoolService {
     @Autowired
     private HashVaultProClient hashVaultProClient;
 
+    @Autowired
+    private MineXmrClient mineXmrClient;
+
     @Scheduled(fixedDelay = 5000)
     public void checkPoolStats() {
 
         logger.info("Checking pool stats");
 
-        String poolStats = hashVaultProClient.getPoolStats();
+        HashVaultProStatsData poolStats = hashVaultProClient.getPoolStats();
         logger.info("HashvaultPro stats: " + poolStats);
 
+        String minePoolStats = mineXmrClient.getPoolStats();
+        logger.info("MineXmr Stats: " + minePoolStats);
     }
+
 
 }
