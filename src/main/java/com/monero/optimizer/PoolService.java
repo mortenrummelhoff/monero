@@ -28,7 +28,8 @@ public class PoolService {
     @Autowired
     private MineXmrClient mineXmrClient;
 
-    private MinerTool minerTool = new MinerTool();
+    @Autowired
+    private MinerTool minerTool;
 
     @Value("${monero.block.hours.max}")
     private Integer hoursMax;
@@ -62,14 +63,19 @@ public class PoolService {
         logger.info("Monero Last Block Found: " + lastBLockFoundTime.getTime() + ", Hours: " + hours);
 
         if (minerStarted) {
-            //check if monero
-            if ("Monero".equals(minerTool.getMinerName()) && hours > hoursMax) {
-                logger.info("Time to switch Pool. Efficiency to low");
-                minerTool.startMiner("Aeon");
-            } else if ("Aeon".equals(minerTool.getMinerName())) {
-                minerTool.startMiner("Monero");
+            if (hours > hoursMax) {
+                //check if Aeon is running
+                if ("Monero".equals(minerTool.getMinerName())) {
+                    minerTool.startMiner("Aeon");
+                } else {
+                    logger.info("Everything fine...Mining: " + minerTool.getMinerName());
+                }
             } else {
-                logger.info("Everything fine...Mining: " + minerTool.getMinerName());
+                if ("Aeon".equals(minerTool.getMinerName())) {
+                    minerTool.startMiner("Monero");
+                } else {
+                    logger.info("Everything fine...Mining: " + minerTool.getMinerName());
+                }
             }
         } else {
              minerTool.startMiner((hours > hoursMax) ? "Aeon" : "Monero");
